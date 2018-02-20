@@ -1,0 +1,17 @@
+Background 
+Alfalfa 
+Corn-notill 
+Corn-min 
+Corn 
+Grass/Pasture 
+Grass/Trees 
+Grass/pasture-mowed 
+Hay-windrowed 
+Oats 
+Soybeans-notill 
+Soybeans-min 
+Soybean-clean 
+Wheat 
+Woods 
+Bldg-Grass-Tree-Drives 
+Stone-steel towers 

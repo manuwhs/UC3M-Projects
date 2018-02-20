@@ -1,0 +1,32 @@
+
+Abstract.
+
+
+Introduction. 
+
+In this paper several a study of several classification schemes is developed for the AVIRIS dataset[X] dataset. 
+
+Data Preprocessing.
+The first task of almost every machine learning system is to preprocess the data. Preprocessing is used to transform the initial dataset into another one that that fullfills the requirements of the learning system and from which is easier to extract information, thus improving the performance.
+
+The AVIRIS image Indian Pine dataset [X] is composed by the sampling of an optical sensor that delivers calibrated images of the upwelling spectral radiance in 220 contiguous spectral channels (bands). The aim of the AVIRIS dataset is to identify, measure, and monitor constituents of the Earth's surface and atmosphere based on molecular absorption and particle scattering signatures at  different frecuency bands. The dataset contains the value of the 220 contiguous channels for a single 145x145 image, each pixel of the image is a sample vector X, and each band is a feature, we end up with a dataset containing 21025x220.
+
+Some of the bands are known to be noisy so the first step is to remove those so that the system performance is not empoverished by them, these bands are the 104:108, 150:163, 220. Then, the background class is excluded. These are the particular preprocessing steps of this database. Now, we split the database into subsets, one for training, the other for testing. Then, each training feature is scaled to mean 0 and std 1.
+
+
+Non-Parametric Classifiers:
+LR, LDA, GNB
+
+
+Hyper-Parametric Classifiers:
+KNN, SVM, Trees
+
+Results 
+
+
+Conclusions
+
+
+References. 
+
+

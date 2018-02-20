@@ -1,0 +1,31 @@
+n_bits = 72 ;
+n_exp = 63;
+n_signals = 58;
+n_samples = 150;
+
+X_train = zeros (n_bits * n_exp ,n_signals * n_samples );
+
+for exp_i = 1:n_exp
+    for bit_i = 1:n_bits
+        for signal_i = 1:n_signals  
+            X_train(bit_i + (exp_i - 1)*n_bits,1 +(signal_i - 1)*n_samples:1 +(signal_i - 1)*n_samples + (n_samples-1)) = data(cue(bit_i,exp_i):cue(bit_i,exp_i)+(n_samples-1),signal_i,exp_i);
+        end
+    end
+end
+
+
+%% WE calculeta Xtest
+
+X_test = zeros (n_bits * 1 ,n_signals * n_samples );
+
+exp_i = 64;
+for bit_i = 1:n_bits
+    for signal_i = 1:n_signals  
+        X_test(bit_i,1 +(signal_i - 1)*n_samples:1 +(signal_i - 1)*n_samples + (n_samples-1)) = data(cue(bit_i,exp_i):cue(bit_i,exp_i)+(n_samples-1),signal_i,exp_i);
+    end
+end
+
+id = knnsearch (X_train, X_test);
+c = isT(id)
+isT(:,64)
+
