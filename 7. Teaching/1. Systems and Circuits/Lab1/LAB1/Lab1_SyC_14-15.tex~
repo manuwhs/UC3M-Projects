@@ -1,0 +1,964 @@
+\documentclass[a4paper,10pt,oneside]{article}
+\usepackage[spanish]{babel}
+\usepackage[latin1]{inputenc}
+\usepackage{color}
+\usepackage{amsmath}
+%\usepackage[dvips]{graphicx}
+\usepackage{latexsym}
+\usepackage{epsfig}
+\usepackage{pstricks}
+\usepackage{amssymb}
+\usepackage{subfigure}
+\usepackage{subfig}
+\usepackage{caption}
+\usepackage{float}
+%\usepackage{graphicx,epic, eepic}
+
+% para que las comillas simples dentro de los entornos verbatim aparezcan como tales
+\usepackage{upquote}
+
+ \renewcommand{\appendixname}{Anexo}
+
+
+
+\setlength{\voffset}{-1in} \setlength{\hoffset}{-1in}
+\setlength{\oddsidemargin}{3cm} \setlength{\topmargin}{1.25cm}
+\setlength{\headheight}{1.25cm} \setlength{\headsep}{0cm}
+\setlength{\textheight}{24.7cm} \setlength{\textwidth}{15cm}
+\setlength{\marginparsep}{2mm} \setlength{\marginparwidth}{2cm}
+\setlength{\footskip}{1cm}
+
+\setlength{\parindent}{0pt}
+
+\spanishdecimal{.}
+
+\title {Lab 1 Sistemas y Circuitos. Curso académico 2014 -- 2015}
+
+\begin{document}
+
+\begin{center}
+    {\textsc {\huge Sistemas y Circuitos}}\\
+    {\textsc {\Large Lab 1: Señales}}\\
+    \textsc{ {\large Curso académico 14/15}}
+    \begin{figure}[!h]
+        \includegraphics{figuras/linea}
+    \end{figure}
+\end{center}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%    					OBJECTIVES
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Objetivos de la práctica}
+
+En esta primera sesión de laboratorio es estudiante aprenderá a
+\begin{itemize}
+\item Manejar los aspectos básicos de Matlab,
+\item Representar secuencias finitas mediante vectores de Matlab
+\item Realizar operaciones sencillas con señales discretas empleando Matlab
+\item Calcular medias, potencias y energías parciales de secuencias.
+\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%    					REGULATION
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Reglamentaci\'on y puntuaci\'on de las sesiones de laboratorios}
+
+\begin{itemize}
+\item Los estudiantes deberán completar las actividades propuestas
+  durante la sesión de laboratorio.
+\item La evaluación de esta práctica se realizará mediante un
+  cuestionario a rellenar en Aula Global {\bf que se abrirá después de
+  que todos los grupos hayan pasado por el laboratorio.} Esta
+evaluación supondrá el 2,5\% del total de la nota de la asignatura.
+\end{itemize}
+
+
+\section{Manejo de señales dicretas en MatLab}
+
+Matlab es una potente herramienta software matemática orientada al manejo de
+matrices. Las mayores ventajas de Matlab para el procesamiento de
+señales y datos en general son la facilidad de su lenguaje de
+programación (de bastante alto nivel), la cantidad de bibliotecas
+software ({\em toolboxes}) que implementan distintas técnicas y
+tecnologías de análisis y la facilidad de representación gráfica de
+los resultados de estos análsis.
+
+El primer objetivo de esta práctica es adaptar las señales a una
+representación vectorial dentro de un ordenador para poder ser
+procesadas empleando Matlab. Matlab en realidad está orientado a
+matrices. Un vector en Matlab es una matriz de dimesiones $N\times 1$
+o $1 \times N$. Podemos imaginar una señal unidimensional como un
+vector de infinitas dimensiones, donde cada coordenada almacena el
+valor que toma la señal en un instante de tiempo.
+
+En primer lugar debemos ser conscientes de que Matlab {\bf siempre
+  trabaja con señales discretas de duración finita}. Esto es así
+porque son las únicas que pueden almacenarse en la memoria de un
+ordenador. Aunque los ordenadores emplean precisión finita, asumiremos
+que la precisión proporcionada es suficiente para nuestros propósitos,
+y por tanto consideraremos que podemos representar cualquier número
+real (por ejemplo por definición un ordenador no puede trabajar con $\pi$, trabaja
+con valores aproximados que para nuestros intereses son
+suficientemente precisos).
+
+A lo largo de la práctica trabajaremos con una serie de señales
+discretas que supondremos distintas de cero en los instantes de
+interés (los valores de la señal que sí estén almacenados en el
+ordenador) e iguales a cero en el resto de instantes. Para representar
+estas señales en Matlab emplearemos dos vectores. El primer vector
+almacena los instantes de tiempo ($n$) del intervalo de interés. El
+segundo vector almacena los valores que toma esa señal en los
+instantes de tiempo definidos en el primer vector ($x[n]$). {\bf Es
+importante que estos dos vectores tengan la misma longitud}.
+
+Lo primero que podemos hacer con una señal es visualizarla. La función
+que nos representa secuencias en Matlab es {\tt stem}. Esta función admite al menos dos argumentos de
+entrada, el primero de ellos es el eje temporal, es
+decir, los instantes de $n$ para los que conocemos el valor de
+la señal. El segundo de ellos es el valor real de esta señal ($x[n]$) en cada
+instante en el que se evalúa. Si se omite el primer argumento, se
+considera por defecto que el intervalo de interés de la señal comienza en 
+$n=1$ y se conoce su valor en instantes enteros consecutivos. 
+
+El siguiente trozo de código representa la secuencia $x[n] =
+\mbox{sen}(n)$ en el intervalo $[-49, 50]$:
+
+\[
+x[n] = \left \{
+  \begin{array}{cl}
+    \sin[n] & -49 \le n \le 50 \\
+0 & \mbox{resto}
+  \end{array}
+\right.
+\] 
+
+{\small
+\begin{verbatim}
+>> n = -49:50; % vector con el eje temporal (instantes de tiempo de interes)
+>> x = sin(n); % vector con los valores de la sennal
+>> stem(n,x); % representar
+>> xlabel('n'); % etiqueta eje horizontal
+>> ylabel('x[n]=\sin[n]');  % etiqueta eje vertical
+\end{verbatim}
+}
+
+\section{Transformaciones de variable independiente en tiempo discreto}
+\subsection{Abatimiento}
+\label{sec:abatimiento}
+
+Abatir una secuencia $x[n]$ significa construir una nueva secuencia
+$y[n] = x[-n]$. Para realizar esta operación en MatLab debemos tener
+en cuenta que todas las secuencias que manejemos tienen que ser de
+duración finita y que comienzan en el instante $n=1$. Dadas estas
+limitaciones, el código para abatir una secuencia y representar
+gráficamente dicho abatimiento consiste en los siguientes pasos
+\begin{verbatim}
+>> % construimos la secuencia x
+>> x = [0:0.1:1 ones(1,5)]; % vector con los valores de la sennal.
+>> % La primera parte es un bucle que devuelve numeros reales entre 0
+y 1 de 0.1 en 0.1
+% ones pone un vector de unos. 
+>> % nx es el vector con el eje temporal de la sennal x[n]
+>> nx = 1:16; % bucle todos los enteros de 1 a 16
+>> % la representamos graficamente
+>> figure
+>> subplot(2,1,1)
+>> stem(nx,x);
+>> axis([-25 25 -0.2 1.2]); % zoom para el eje de la figura
+>> xlabel('n'); % etiqueta eje horizontal
+>> ylabel('x[n]');  % etiqueta eje vertical
+>> % abatimos x
+>> y = x(end:-1:1); % abatimos los valores de la sennal
+>> % eje temporal para y
+>> ny = -nx(end:-1:1); % tambien hay que abatir el vector con el eje
+de tiempos!!
+>> % representacion grafica
+>> subplot(2,1,2)
+>> stem(ny,y);
+>>  axis([-25 25 -0.2 1.2]);
+>> xlabel('n'); % etiqueta eje horizontal
+>> ylabel('y[n]=x[-n]');  % etiqueta eje vertical
+\end{verbatim}
+
+\subsection{Diezmado}
+\label{sec:diezmado}
+
+Diezmar una secuencia consiste en construir otra secuencia a partir de
+desechar muestras de la secuencia original. Para implementar esta
+operación en MatLab podemos usar el siguiente código, que diezma una
+secuencia $x[n]$ para construir $y[n] = x[3n]$
+\begin{verbatim}
+>> % construimos la secuencia x
+>> x1 = [0:0.1:1 ones(1,5)];
+>> x = [x1 x1 x1] % esto replica x tres veces
+>> % eje temporal para x
+>> nx = 1:48;
+>> % la representamos graficamente
+>> figure
+>> subplot(2,1,1)
+>> stem(nx,x);
+>> axis([-1 50 -0.2 1.2]);
+>> xlabel('n'); % etiqueta eje horizontal
+>> ylabel('x[n]');  % etiqueta eje vertical
+>> % determinamos la duracion de y
+>> Ny = floor(length(x)/3);
+>> for k=1:Ny
+>>    y(k) = x(k*3);
+>> end
+>> % eje temporal para y
+>> ny = 1:Ny
+>> % representamos graficamente
+>>  subplot(2,1,2)
+>> stem(ny,y);
+>> axis([-1 50 -0.2 1.2]);
+>> xlabel('n'); % etiqueta eje horizontal
+>> ylabel('y[n]=x[3n]');  % etiqueta eje vertical
+\end{verbatim}
+
+\subsection{Rellenado mediante ceros}
+\label{sec:diezmado}
+
+Esta operación de intercalado de
+ceros entre las muestras originales alarga la duración de las secuencias. Para implementar esta
+operación en MatLab podemos usar el siguiente código, construye $y[n]$ con duración igual al doble de
+la duración de $x[n]$ 
+\begin{verbatim}
+>> % construimos la secuencia x
+>> x1 = [0:0.1:1 ones(1,5)];
+>> x = [x1 x1]
+>> % eje temporal para x
+>> nx = 1:32;
+>> % la representamos graficamente
+>> figure
+>> subplot(2,1,1)
+>> stem(nx,x);
+>> axis([-1 66 -0.2 1.2]);
+>> xlabel('n'); % etiqueta eje horizontal
+>> ylabel('x[n]');  % etiqueta eje vertical
+>> % determinamos la duracion de y
+>> Ny = length(x)*2;
+>> % interpolamos con ceros
+>> for k=1:Ny
+>>    if rem(k,2) == 0
+>>       y(k) = x(k/2);
+>>    else
+>>       y(k) = 0;
+>>    end
+>> end
+>> % eje temporal para y
+>> ny = 1:Ny
+>> % representamos graficamente
+>>  subplot(2,1,2)
+>> stem(ny,y);
+>> axis([-1 66 -0.2 1.2]);
+>> xlabel('n'); % etiqueta eje horizontal
+>> ylabel('y[n]=x[n/2]');  % etiqueta eje vertical
+\end{verbatim}
+
+\subsection{Desplazamiento temporal}
+\label{sec:despl-temp}
+
+Recordemos que en el ordenador sólo tenemos almacenado el intervalo de
+interés de la secuencia, y que en Matlab estamos representando cada
+secuencia con dos vectores, uno que almacena los instantes de tiempo y
+otro que almacena los valores de la señal.
+Para hacer un desplazamiento temporal de la
+misma, sólo tenemos que {\bf modificar el vector que almacena el eje
+temporal}, sumando o restando el valor del desplazamiento. 
+
+\begin{verbatim}
+>> % construimos la secuencia x
+>> x = [0:0.1:1 ones(1,5)];
+>> % eje temporal para x
+>> nx = 1:16;
+>> % la representamos graficamente
+>> figure
+>> subplot(2,1,1)
+>> stem(nx,x);
+>> axis([-1 30 -0.2 1.2]);
+>> % la retardamos 10 instantes de tiempo
+>> ny = nx + 10;
+>> y = x; % la forma de la secuencia se queda como estaba
+>> % representamos graficamente
+>>  subplot(2,1,2)
+>> stem(ny,y);
+>> axis([-1 30 -0.2 1.2]);
+\end{verbatim}
+
+\section{Cálculo de Energía y Potencia}
+\label{sec:calculo-de-energia}
+
+\subsection{Energía}
+\label{sec:secuencias}
+
+El siguiente código calcula la energía de una secuencia almacenada en una variable
+Matlab {\tt x}. 
+\begin{verbatim}
+>> % construimos la secuencia x
+>> x = [0:0.1:1 ones(1,5)];
+>> % eje temporal para x
+>> nx = 1:16;
+>> % la representamos graficamente
+>> figure
+>> subplot(2,1,1)
+>> stem(nx,x);
+>> axis([-1 20 -0.2 1.2]);
+>> Energia = sum(abs(x).^2)
+\end{verbatim}
+
+
+
+
+\subsection{Potencia}
+
+En general, para secuencias de duración finita no estaremos
+interesados en calcular la potencia total, porque será cero. Para las
+secuencias de duración finita se suele considerar la {\bf potencia promedio
+en el intervalo de interés} (aquel en que la secuencia es distinta de
+cero). En el caso de la secuencia del ejemplo anterior, esta potencia
+promedio en el intervalo de interés se calcularía en Matlab mediante 
+
+\begin{verbatim}
+>> Potencia = mean(abs(x).^2)
+\end{verbatim}
+
+En el caso de señales periódicas, en Matlab es suficiente con
+almacenar un periodo. Por ejemplo, considérese la secuencia $x[n] =
+\cos(2\pi n /13)$, que es periódica con periodo fundamental $N=13$. El
+siguiente código calcula la potencia en uno y en cuatro
+periodos. También puede calcularse la potencia promedio en 
+
+\begin{verbatim}
+>> % construimos la secuencia x
+>> nx = 0:1:48;
+>> x = cos(nx * 2 * pi);
+>> % la representamos graficamente
+>> figure
+>> subplot(2,1,1)
+>> stem(nx(1:13), x(1:13)); % represento solo 13 muestras
+>> axis([-1 50 -1.2 1.2]);
+>> xlabel('n');
+>> ylabel('1 periodo');
+>> subplot(2,1,2)
+>> stem(nx(1:end), x(1:end)); % represento 4 periodos x(1:end)
+= x
+>> axis([-1 50 -1.2 1.2]);
+>> xlabel('n');
+>> ylabel('4 periodos');
+>> PotenciaUnPeriodo = mean(abs(x(1:13)).^2)
+>> PotenciaMedioPeriodo = mean(abs(x(5:11)).^2)
+>> PotenciaTresPeriodos = mean(abs(x(8:43)).^2)
+\end{verbatim}
+
+\section{Miniproyectos}
+Los conocimientos adquiridos en esta sesión nos permiten abordar una
+serie de miniproyectos de procesamiento de señal que impliquen la
+realización de operaciones sencillas con señales.
+
+El enunciado de la práctica se acompaña de una serie de ficheros {\tt
+  .wav} que contienen fragmentos de la banda sonora de películas
+clásicas. Dichos fragmentos corresponden a música o a voz.
+
+\subsection{Miniproyecto 1: Mezcla de música con {\em fading}}
+Este proyecto consiste en conseguir que dos bandas sonoras suenen
+alternativamente usando transiciones suaves. Vamos a intercalar el
+tema principal de {\em El Gran Golpe} con el tema principal de {\em La
+Guerra de las Galaxias.}
+
+\begin{enumerate}
+\item {\bf Carga de los ficheros de audio.} Mediante la función {\tt
+    wavread.m } se leen las formas de onda correspondientes a los dos
+  clips,
+
+\begin{verbatim}
+>> GranGolpe = wavread('thesting.wav');
+\end{verbatim}
+Análogamente cargue el clip de {\em La Guerra de las Galaxias} en una
+variable llamada {\tt StarWars}.
+\item {\bf Alineamiento de longitudes.} Matlab emplea vectores para
+  representar las señales. Las operaciones entre señales se realizan
+  en Matlab mediante operaciones entre vectores. Para poder operar con
+  dos o más vectores es necesario que todos tengan la misma
+  longitud. El comando Matlab {\tt length} nos devuelve la longitud de
+  un vector. Empléelo para calcular la longitud de los clips de audio.
+
+Recorte el vector con la señal de audio más larga de las dos para que
+  ambos vectores tengan la misma longitud.
+
+Genere un vector de instantes de tiempo $n$ con primera componente
+$n(1)=0$ y última componente la longitud de los clips de audio menos uno. 
+
+\item {\bf Diseño del {\it fading}.} El {\it fading} se puede
+  implementar multiplicando cada señal por una sinusoide del tipo $0.5
+  + 0.5*cos(2\pi n/M )$. Esta sinuoside oscila entre 0 y 1, cuando tome
+  valores próximos a 1 el audio se escuchará más o menos
+  intacto. Cuando tome valores próximos a 0, el audio sonará muy
+  atenuado, circunstancia que aprovecharemos para que el otro audio
+  suene sin atenuar.
+
+ Para diseñar
+  esta sinusoide primero hay que determinar el número de transiciones
+  que queremos entre los dos audios. La longitud de la sinusoide tiene
+  que ser igual que la de los clips de audio. El periodo de la
+  sinusoide marca el número de transiciones entre canciones que se
+  efectuarán: habrá tantas transiciones como periodos de la señal
+  quepan en la longitud del clip de audio. Determine $M$ para que haya 4 transiciones. 
+
+Con este valor de $M$ construya la sinusoide $s1[n] = 0.5 +
+0.5*cos(2\pi n /M)$.
+\item {\bf Atenúe la señal que va a sonar en primer lugar}. Por
+  ejemplo si la que suena primero es {\em La Guerra de las Galaxias},
+  multiplique 
+
+\begin{verbatim}
+>> x1 = StarWars .* s1;
+\end{verbatim}
+La operación {\tt .*} realiza el producto elemento a elemento.
+\item {\bf Diseñe el {\it fading} para la segunda señal.} Tenemos que
+  diseñar un {\it fading} que sea complementario al de la primera
+  señal, es decir, cuando la primera señal esté atenuada, la segunda
+  señal debe oírse sin atenuar, y viceversa.
+
+Esto se consigue sumando un desfase de $\pi$ radianes a la sinusoide
+anterior $s2[n] = 0.5 + 0.5*cos(2\pi n /M + \pi)$.
+
+Represente conjuntamente $s1[n]$ y $s2[n]$ para verificar que los {\em
+fading} son complementarios. 
+
+\item {\bf Construir la combinación que intercale los dos
+    audios}. Primeramente se obtiene la señal {\tt x2} multiplicando
+  el segundo clip de audio ({\em El Gran Golpe}) por la señal de
+  atenuación {\tt s2}.
+Finalmente se suman las dos señales atenuadas y se reproduce invocando
+la función Matlab {\tt escucha} que se suministra con el enunciado de
+la práctica.
+\begin{verbatim}
+>> x = x1 + x2;
+>> escucha(x);
+
+
+\end{verbatim}
+\end{enumerate}
+
+\subsection{Miniproyecto 2: Musicar un texto}
+El segundo proyecto consiste en conseguir que suene una música durante
+la reproducción de uno de los clips de voz. Por ejemplo vamos a hacer
+que suene la música de {\em El Tercer Hombre} mientras se escucha el
+texto de {\em Blade Runner}. El efecto perseguido es un clip de audio
+donde comience a oírse la música, se atenúe un poco, empiece la voz y
+cuando acabe la voz la música vuelva a dejar de sonar atenuada.
+
+\begin{enumerate}
+\item {\bf Carga de los ficheros de audio.} Asumimos que creamos dos
+  vectores Matlab {\tt bladerunner} y {\tt tercerhombre} con los audios.
+\item {\bf Adecuación de las longitudes de los ficheros}. En este caso
+  la música dura menos que la voz. Vamos a construir un fondo musical
+  más duradero concatenando  {\tt tercerhombre} tres veces en una
+  variable nueva llamada {\tt th}.
+\item {\bf Generación de la señal de atenuación para la música.} En
+  función de la duración de la voz, hay que generar un vector que
+  atenúe la música mientras suena la voz. Este vector tendrá la
+  duración de {\tt th} y todas sus posiciones valdrán 1 (no
+  atenuación) excepto un intervalo situado en la parte central del
+  vector, con las posiciones de éste tomando un valor en torno a 0.25
+  (atenuación). La duración del intervalo de atenuación tiene que ser
+  igual al número de muestras de {\tt bladerunner}.
+\item {\bf Alinear el vector señal de voz con la música}. El vector
+  que se va a sumar al vector música (resultante de atenuar {\tt th}
+  con la señal del apartado anterior) tendrá la longitud de {\tt th} y
+  todas sus posiciones serán nulas, excepto las posiciones donde {\tt th}
+    se atenúe, que serán ocupadas por {\tt bladerunner}.
+  \item {\bf Generar el clip definitivo y escucharlo.} Se genera el
+    clip sumando la señal creada en el punto anterior a la señal
+    resultante de multiplicar punto a punto {\tt th} con la señal de
+    atenuación. Este clip se puede escuchar para ver que hemos
+    realizado el proyecto con éxito.
+\end{enumerate}
+
+ 
+  \newpage
+  
+\appendix
+
+\section{Introducción a Matlab}
+MATLAB (MATrix LABoratory) es un entorno de trabajo interactivo destinado a la resoluci\'on de problemas de c\'alculo num\'erico y c\'alculo simb\'olico tanto en entornos acad\'emicos como de investigaci\'on e industriales. Permite resolver problemas sin necesidad de escribir un programa gracias a un int\'erprete de comandos, y permite una visualizaci\'on de resultados muy potente y vers\'atil. 
+
+Puede considerarse como un lenguaje de programaci\'on de alto nivel orientado a la resoluci\'on de problemas matem\'aticos. Posee potentes capacidades gr\'aficas y con la ayuda de extensas librer\'ias (``toolboxes"), aporta gran cantidad de funciones para problemas espec\'ificos.
+
+\subsection{Entorno de trabajo}
+Al abrir MATLAB, lo primero que encontramos es el entorno de trabajo (workspace). Seg\'un la versi\'on de MATLAB, el entorno se compone de una ventana con un {\it prompt} $(>>)$ para el int\'erprete de comandos, una con un hist\'orico de los comandos introducidos y otra con una lista de ficheros del directorio de trabajo. 
+
+Algunas de las caracter\'isticas clave del int\'erprete de comandos se resumen a continuaci\'on:
+\begin{itemize}
+\item Distingue entre may\'usculas y min\'usculas (no es igual referirse a la variable {\tt Var} que a {\tt var}).
+\item Las flechas $( \downarrow y \uparrow)$ permiten recuperar comandos anteriores.
+\item El comando {\tt help} permite obtener ayuda. El comando {\tt doc} abre una nueva ventana de Matlab en donde se puede buscar la ayuda en otro formato.
+\item Si no se asigna a ninguna otra variable, la variable de entorno {\tt ans} almacena el resultado de la \'ultima operaci\'on realizada.
+\item Al terminar una instrucci\'on con ``;", el resultado de la operaci\'on introducida se calcula pero no se muestra por pantalla.
+\item Se pueden poner varias instrucciones en la misma l\'inea separando con $``,"$ o con $``;"$.
+\item El comando {\tt save} permite guardar el entorno de trabajo (con los valores de todas las variables) en un fichero, por defecto .mat, para luego recuperarlo con {\tt load}.
+\end{itemize}
+El int\'erprete de comandos admite adem\'as algunos comandos relativos al manejo del directorio de trabajo, tales como {\tt cd}, {\tt dir}, {\tt mkdir}, {\tt delete}, \ldots .
+
+
+
+La siguiente figura muestra la ventana que vemos cuando abrimos el
+entorno de trabajo de Matlab.
+
+\begin{figure}
+\begin{center}
+        \includegraphics[scale=1]{figuras/MatlabEnvironment-eps-converted-to.pdf}
+        \caption{Entorno de trabajo de Matlab.}
+\end{center}
+\end{figure}
+
+
+
+
+
+\subsection{Variables, vectores y matrices}
+Aunque conceptualmente parecen diferentes, MATLAB trabaja indistintamente con escalares, vectores y matrices de cualquier dimensi\'on. Para MATLAB todos los datos son matrices. Un escalar es, de hecho, una matriz $1\times1$.
+
+La definici\'on de una variable es sencilla. El identificador de una variable tiene que comenzar con un car\'acter alfab\'etico y continuar por cualquier n\'umero adicional de caracteres alfab\'eticos, num\'ericos o s\'imbolos. La definici\'on se puede realizar por asignaci\'on simple o como resultado de una operaci\'on:
+{\small
+\begin{verbatim}
+>> A=2
+
+A = 
+	2	
+
+>> B=pi/4 
+
+B =
+
+    0.7854
+\end{verbatim}
+}
+
+Desde ese momento la variable est\'a almacenada en el espacio de trabajo hasta que se utilice o hasta que se elimine con el comando {\tt clear}.
+
+{\small
+\begin{verbatim}
+>> A*B 
+
+ans = 
+
+    1.5708 
+\end{verbatim}
+}
+    
+
+%La forma en que se representan en pantalla los valores num\'ericos se puede variar mediante el comando format si necesitamos una mayor precisi\'on.
+
+En el caso de los vectores y matrices, la definici\'on puede realizarse de varias formas. La m\'as sencilla consiste en asignar valores uno a uno:
+
+{\small
+\begin{verbatim}
+>> Vector(1)=2 ; Vector(2)=2; Vector(3)=9
+
+Vector =
+
+     2      2      9
+\end{verbatim}
+}
+
+
+Un detalle importante es que el primer \'indice de un vector o de las coordenadas de una matriz es el $1$. En este ejemplo, al intentar darle valor al elemento $``0"$ de Vector, obtendr\'iamos un error:
+{\small
+\begin{verbatim}
+>> Vector(0)=33
+??? Subscript indices must either be real positive integers or logicals.
+\end{verbatim}
+}
+
+Otra forma de inicializar un vector es asignar todos los valores al mismo tiempo, enumer\'andolos entre corchetes separados por $``,"$ o espacio en blanco, si queremos que se trate de un vector fila, o separados por $``;"$ si queremos que sea un vector columna. En el caso de una matriz de dimensi\'on 2, los elementos de una fila se separan con una $``,"$ o un espacio en blanco y a continuaci\'on las distintas columnas se separan con $``;"$:
+
+{\small
+\begin{verbatim}
+>> Matriz=[1    2    3 ; 0   0    1; 2     4     6]
+
+Matriz =
+
+    1      2      3
+    0      0      1
+    2      4      6
+     
+     \end{verbatim}
+}
+
+Otra manera particularmente interesante de definir vectores o matrices es generar una serie de valores desde un valor inicial a uno final con incrementos sucesivos de un determinado paso, mediante el operador $``:"$, muy usado en MATLAB: hay que indicar el valor inicial, el paso y el valor final. 
+
+{\small
+\begin{verbatim}
+>> V2=[10:2:30]
+
+V2 =
+
+    10     12     14     16     18     20     22     24     26     28     30
+    
+    \end{verbatim}
+}
+
+Podemos emplear el comando linspace para definir un vector de un cierto n\'umero de elementos (por defecto 100) equiespaciados entre un valor inicial y uno final. Es perfecto para generar una variable que se pueda interpretar como una referencia de tiempos para una se\~nal:
+
+{\small
+\begin{verbatim}
+>> tiempo=linspace(3,5,8)
+
+tiempo =
+
+    3.0000     3.2857     3.5714     3.8571     4.1429     4.4286     4.7143     5.0000
+    
+    \end{verbatim}
+}
+
+Existen multitud de comandos como {\tt zeros}, {\tt ones}, {\tt eye}, {\tt diag}, \ldots para definir matrices particularmente habituales con determinados elementos prefijados: \\
+{\small
+\begin{verbatim}
+>> I=eye(3)
+
+I = 
+
+     1      0      0 
+     0      1      0 
+     0      0      1  
+     \end{verbatim}
+}
+
+Tambi\'en hay funciones que devuelven matrices o vectores, pero de ellas hablaremos m\'as adelante.
+
+%CONCATENACIon de submatrices
+
+En muchas ocasiones, ser\'a interesante extraer una parte de los datos de una matriz o vector para operar con ellos o para mostrar una parte de los resultados. Cada elemento \{i,j\} de una matriz se puede acceder por medio de par\'entesis y comas separando la coordenada en cada dimensi\'on del dato: \\
+{\small
+\begin{verbatim}
+>> M_Test = [ 9  -1  0  ;  2  4  3 ;  41   42  40 ] ;   M_Test(3,2)
+
+ans = 
+
+    42
+\end{verbatim}
+}
+
+MATLAB posee unas sencillas reglas para extraer submatrices (o escalares) de una matriz mayor con la ayuda del operador $``:"$ para definir un rango de coordenadas de inter\'es, por ejemplo, los elementos de la primera fila y columnas 2 y 3: 
+{\small
+\begin{verbatim}
+>> M_Test(1, 2:3)
+
+ans = 
+
+    -1     0  
+
+\end{verbatim}
+}
+
+Empleado sin ning\'un inicio ni final de rango, el operador $``:"$ denotar\'a que se toma todo el rango posible de esa coordenada, en este ejemplo, todas las filas de la columna 3: \\
+
+{\small
+\begin{verbatim}
+>> M_Test(:,3)
+
+ans = 
+
+     0  
+     3  
+    40  
+\end{verbatim}
+}
+Un uso especial del operador $``:"$ consiste en reducir una matriz a un \'unico vector con los elementos de todas las columnas en una sola. En este ejemplo lo transponemos para que nos quede un vector fila: \\
+{\small
+\begin{verbatim}
+>> M=M_Test(:)' 
+
+M = 
+
+    9     2    41    -1     4    42     0     3    40 
+\end{verbatim}
+}
+
+Otra manera de extraer submatrices es mediante operadores l\'ogicos $(< , > , == , != , \ldots)$. Aplicar un operador l\'ogico sobre una matriz devuelve un vector con los \'indices de aquellos elementos que cumplen la condici\'on impuesta. \\
+
+{\small
+\begin{verbatim}
+
+>> M2=M_Test(M_Test >= 3)'
+
+M2 = 
+
+     9        41         4        42         3        40 
+\end{verbatim}
+}
+Para concatenar matrices, se procede poniendo entre corchetes los distintos elementos (submatrices) que la componen. \\
+
+{\small
+\begin{verbatim}
+>> Matriz=[M_Test ones(3,1); zeros(1,3) 9]
+
+Matriz = 
+
+     9        -1       0       1      
+     2         4       3       1   
+    41      42     40      1   
+     0         0       0       9
+        
+\end{verbatim}
+}
+
+
+\subsection{Funciones predefinidas y operadores}
+
+En MATLAB existen multitud de operadores y funciones que realizan operaciones sobre variables. Los operadores realizan las operaciones m\'as comunes entre variables, tales como adici\'on ($+$), sustracci\'on ($-$), producto ($*$), divisi\'on izquierda ($/$), divisi\'on derecha ($\backslash$), potenciaci\'on ($\wedge$), \ldots La precedencia de estos operadores es como la de otros lenguajes de programaci\'on aunque mediante los par\'entesis $``(\ldots)"$ podemos realizar los c\'alculos en el orden que deseemos. \\
+
+{\small
+\begin{verbatim}
+>> angulo=pi/9;  num=24;   t=12;   resultado=((num +3 * t - angulo)^2)/1000
+
+resultado = 
+
+    3.5582 
+\end{verbatim}
+}
+
+En el caso de que trabajemos con vectores o matrices, los operadores anteriores se refieren a operaciones matriciales. \\
+
+{\small
+\begin{verbatim}
+
+>> M=[1   0 ;  0   2] ; V=[3   4]; V*M 
+
+ans = 
+
+   3      8 
+\end{verbatim}
+}
+
+Adem\'as se emplea un apostrofe sencillo para denotar la transposici\'on de una matriz o vector, como en este ejemplo que ilustra como realizar el producto escalar: \\
+
+{\small
+\begin{verbatim}
+>> v1=[1   2   3];  v2=[5   0   3] ;   prod_escalar= v1*v2'
+
+prod_escalar= 
+
+14
+\end{verbatim}
+}
+
+
+Los operadores entre matrices se pueden emplear de manera que la operaci\'on se realice elemento a elemento en lugar de entre las matrices, sin m\'as que poner un punto antes del operador que corresponda. Queda ilustrado en el siguiente ejemplo, en lugar de realizarse un producto de matrices, cada elemento \{i, j\} del resultado se calcula como el producto del elemento \{i, j\} de una matriz con el \{i, j\} de la otra matriz: \\
+
+{\small
+\begin{verbatim}
+>> A = [ 1  1 ;  2   5 ];  B=[ 9  2 ;  5  0] ;  C=A.*B 
+
+C = 
+
+       9     2 
+     10     0 
+\end{verbatim}
+}
+
+Las funciones predefinidas realizan operaciones m\'as complejas pero igualmente habituales en determinados \'ambitos. Podemos distinguir entre tres tipos principales. En primer lugar, se encuentran aquellas funciones que se suelen aplicar sobre escalares y que su aplicaci\'on sobre matrices se realiza elemento a elemento. Algunos ejemplos de las mismas son: {\bf sin}, {\bf  cos}, {\bf  exp}, {\bf  log},  {\bf abs}, {\bf  sqrt}, {\bf round}, \ldots. \\
+
+
+{\small
+\begin{verbatim}
+
+>> angulo=pi/4; resultado=sin(pi/4) 
+
+resultado = 
+
+    0.7071 
+\end{verbatim}
+}
+
+
+En este segundo ejemplo, adem\'as de ver las funciones escalares, observamos que para definir una cantidad compleja MATLAB emplea la variable reservada $``i"$ o $``j"$: \\
+
+{\small
+\begin{verbatim}
+
+>> angulos = j*[pi/2 pi 3*pi/2];  salida = exp(angulos) 
+
+salida = 
+
+
+ 0.0000 + 1.0000i  -1.0000 + 0.0000i  -0.0000 - 1.0000i 
+
+\end{verbatim}
+}
+
+En segundo lugar, dentro de las funciones podemos encontrar aquellas que operan sobre vectores (fila o columna) dando como resultado un escalar. Algunas de estas funciones son: {\bf max}, { \bf min}, { \bf sum}, { \bf mean}, { \bf std}, \ldots. Este tipo de funciones pueden usarse sobre matrices y operar\'ian por filas o por columnas devolviendo un vector de valores. \\
+
+{\small
+\begin{verbatim}
+>> vector=[ 3.67  5.51  9.02  3.27  1.91] ;  mean( vector)
+
+ans = 
+
+    4.6760 
+\end{verbatim}
+}
+
+
+Por \'ultimo, existe otro grupo de funciones que operan sobre matrices y que resuelven c\'alculos generalmente m\'as complejos. Algunas de ellas son: {\bf eig}, {\bf  inv}, {\bf det}, {\bf size}, \ldots. Dependiendo de la funci\'on devuelven un escalar, un vector, o una nueva matriz: \\
+
+{\small
+\begin{verbatim}
+>> A=[  1  1;  2   5];  A_inversa= inv(A)
+
+A_inversa =
+
+   1.6667   -0.3333  
+  -0.6667    0.3333 
+
+\end{verbatim}
+}
+
+
+
+\subsection{Visualizaci\'on de los datos}
+
+Una de las mayores ventajas de MATLAB es la facilidad que nos ofrece para representar los datos. Las funciones m\'as importantes para la visualizaci\'on de datos son {\bf plot} para 2 dimensiones y {\bf mesh}, {\bf surf} y {\bf contour} para la visualizaci\'on de datos de 3 dimensiones. El empleo m\'as com\'un de {\bf plot} es mostrar un vector $``x"$ frente a otro $``y"$, donde $y = f ( x )$.  La ejecuci\'on de los comandos \\
+
+{\small
+\begin{verbatim}
+>>  x = -1 : 0.1 :1 ;   y=x.^2; 
+>> plot(x,y) 
+\end{verbatim}
+}
+
+nos dar\'a una salida como la siguiente: \\
+
+\begin{figure}[h]
+\begin{center}
+        \includegraphics{figuras/Fig1}
+\end{center}
+\end{figure}
+
+
+ Si no indicamos $``x"$, se toma como valores de las abscisas un vector $x=1, 2, \ldots, n$ \\
+
+Es importante darse cuenta de que estamos trabajando con una representaci\'on num\'erica y que en ning\'un momento trabajamos con funciones anal\'iticas. En la gr\'afica anterior se han representado estos puntos con una l\'inea que los une, de forma de parece una funci\'on ``suave". \\
+
+
+Si invocamos otra vez a la funci\'on ``plot", la representaci\'on anterior desaparecer\'a. Si nos interesa mantenerla, empleamos el comando {\bf hold on}. Si queremos volver al estado inicial y que el siguiente gr\'afico borre lo anterior empleamos {\bf hold off} \\
+
+{\small
+\begin{verbatim}
+>> x = -1:0.1:1;  y1=x.^2;  y2=x.^3; 
+>> plot(x,y1,'--');  
+>> hold on  
+>> plot(x,y1,'--');   
+>> plot(x,y2,'*-');   
+\end{verbatim}
+}
+
+
+\begin{figure}[h]
+\begin{center}
+        \includegraphics{figuras/Fig2}
+\end{center}
+\end{figure}
+
+
+
+ 
+Se pueden representar la sucesi\'on de puntos de diferentes maneras y colores. Se recomienda ver {\bf help plot} para un listado exhaustivo de las opciones. \\
+
+Adem\'as, existen los comandos {\bf xlabel} (para etiquetar el eje de abscisas), {\bf ylabel} (\'idem para el eje de ordenadas) y {\bf title} (pone un nombre a la figura). Adem\'as, con {\bf axis} establecemos el rango que queremos visualizar. Si a continuaci\'on del ejemplo anterior ejecutamos: \\
+
+{\small
+\begin{verbatim}
+>> xlabel('Eje de abscisas')  
+>> ylabel('Eje de ordenadas');  
+>> title('Título de la gráfica');  
+>> axis( [-1  0  -0.4  0.4 ]) 
+\end{verbatim}
+}
+
+
+Obtenemos \\
+
+
+\begin{figure}[h]
+\begin{center}
+        \includegraphics{figuras/Fig3}
+\end{center}
+\end{figure}
+
+
+Si queremos mantener la gr\'afica actual intacta y necesitamos representar otra funci\'on, podemos abrir una ventana nueva con el comando figure. De hecho, el comando ``plot" dibujar\'a sobre la ventana que est\'e activa (ya sea por comando o por foco de rat\'on) en ese momento. \\
+
+
+\subsection{Guiones (scripts) y funciones}
+
+En el apartado anterior hemos visto que hay conjuntos de instrucciones que podemos querer ejecutar ``en bloque". Esto podemos solucionarlo escribi\'endolas todas en la l\'inea de comandos, pero obviamente puede resultar muy trabajoso.
+
+Los scripts solucionan este problema: son ficheros texto que contienen instrucciones de Matlab exactamente igual que si las escribi\'esemos en la l\'inea de comandos. Tienen la extensi\'on ``.m" y para ejecutarlos basta con escribir en el nombre del fichero (sin el ``.m") en la l\'inea de comandos. Para la correcta ejecuci\'on, el directorio donde est\'a almacenado el script tiene que estar en el {\bf PATH} de Matlab.
+
+\% Script GeneraGraficas.m para generar las gr\'aficas que ilustran
+\% el manual de MATLAB
+
+{\small
+\begin{verbatim} 
+x=-1:0.1:1;  y1=x.^2;  y2=x.^3; 
+plot(x,y1,'--'); 
+hold on  
+plot(x,y1,'--');  
+plot(x,y2,'*-');  
+xlabel('Eje de abscisas')  
+ylabel('Eje de ordenadas');  
+title('Título de la gráfica');  
+axis([-1 0 -0.4 0.4])    
+\end{verbatim}
+}
+
+
+Para invocar al fichero, basta con escribir  \\
+
+{\small
+\begin{verbatim} 
+>> GeneraGraficas  
+\end{verbatim}
+}
+
+Como vemos en el ejemplo, lo que est\'e a continuaci\'on de $``\%" $ se considera comentario.  \\
+
+Las funciones, por el contrario, nos permiten definir una entrada y una salida a una serie de instrucciones. Al igual que antes, son ficheros de texto con la extensi\'on ``.m". La diferencia fundamental es que es necesario comenzar con la palabra function seguido del mismo nombre que tiene el fichero e incluyendo las variables de entrada y salida a la funci\'on. Ejemplo:  \\
+
+\% Funci\'on que calcula la distancia entre dos puntos P1 y P2
+
+{\small
+\begin{verbatim} 
+function [modulo,v]=distancia(P1,P2)
+
+% calcula el vector que une ambos puntos
+v=P2-P1;	
+% calcula el modulo del vector
+modulo=norm(v,2);
+\end{verbatim}
+}
+
+donde las variables de salida son \texttt{modulo} y \texttt{v}, y las variables de entrada \texttt{P1} y \texttt{P2}. Para usar la funci\'on la invocar\'iamos as\'i \\
+{\small
+\begin{verbatim} 
+
+>> P1=[1 2];
+>> P2=[-5 8];
+>> Dist=distancia(P1,P2)  
+
+Dist =  
+
+    8.4853  
+
+\end{verbatim}
+}
+
+Cabe se\~nalar diferencias y similitudes importantes entre {\it scripts} y {\it funciones}. Aunque \texttt{P1} y \texttt{P2} sean variables que tengan el mismo valor dentro y fuera de la funci\'on, eso no tiene por qu\'e ser as\'i. Los scripts emplean el mismo \'ambito de variables que el entorno que lo invoc\'o, mientras que en las funciones las variables son locales y su valor se pierde al salir de ellas (excepto las que devuelve la funci\'on). As\'i pues, despu\'es de llamar a \texttt{GeneraGraficas}, las variables \texttt{x}, \texttt{y1} e \texttt{y2}  estar\'ian accesibles en el entorno. \\
+
+Una similitud importante es que tanto los scripts como funciones permiten ser {\bf depurados}, con un interfaz semejante a los depuradores actuales de Visual C o Eclipse: permiten pausar la ejecuci\'on, ver y modificar el contenido de variables, etc. Para depurar un script o funci\'on, puedes poner un \textit{breakpoint} en el editor utilizando los iconos o la tecla \texttt{F12}, lo que indicar\'a al programa que se pare de forma temporal en ese punto y da acceso a la l\'inea dé comandos. \\
+
+
+
+\end{document}

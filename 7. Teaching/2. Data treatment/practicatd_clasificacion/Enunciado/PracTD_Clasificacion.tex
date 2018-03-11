@@ -1,0 +1,139 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage{epsfig}
+\usepackage[OT1]{fontenc}
+\usepackage[latin1]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage{amsmath,amssymb}
+\usepackage{float}
+
+\oddsidemargin  -0.31in
+\evensidemargin -0.31in
+
+\topmargin 50truept
+\headheight 0truept
+\headsep 0truept
+\voffset -20truemm
+%\footheight 0truept
+\footskip 10truemm
+\textheight 250truemm
+\textwidth 175truemm
+
+%\twocolumn
+%\columnsep 8truemm
+\pagestyle{empty}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{10pt}
+
+
+\def\bfmath#1{\mbox{\boldmath$#1$}} 
+\begin{document}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\title{Práctica 1: Clasificación}
+
+%%% IEEE
+\author{Tratamiento de Datos\\ Curso 2013--2014 }
+\maketitle
+
+\section*{Introducción}
+\label{sec-intro}
+
+En esta práctica analizaremos los métodos de regresion logística y las máquinas de vectores soporte utilizando datos generados artificialmente. A continuación, analizaremos el comportamiento de estos clasificadores utilizando una base de datos reales.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Análisis de un problema sintético bidimensional}
+
+Cargue los datos contenidos en el fichero {\tt 'datosP1.mat'}. El fichero contiene dos variables, {\tt x} e {\tt y}. La primera es una matriz de observaciones. Cada fila de la matriz es una observación bidimensional. La segunda contiene la categoría a la que pertenece cada observación (0 ó 1).
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Regresión logística: clasificador lineal}
+
+En primer lugar, analizaremos el comportamiento de un modelo de regresión logística.
+
+\begin{enumerate}
+\item Visualice las observaciones sobre el plano, utilizando un markador diferente para los datos de cada categoría.
+\item Utilizando la función {\tt glmfit}, ajuste un modelo de regresión logística a los datos.
+\item Utilizando la función {\tt contourf}, visualice el mapa de probabilidades a posteriori estimadas para la categoría 1.
+\item Determine las tasas de error de entrenamiento y validación.
+\item Determine las verosimilitud de los datos de entrenamiento y test para el modelo obtenido.
+\end{enumerate}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Regresión logística: clasificador no lineal}
+
+A continuación, analizaremos el comportamiento de un clasificador no lineal basado en un modelo de regresión logística con términos polinómicos.
+
+\begin{enumerate}
+\item Utilizando la función {\tt glmfit}, ajuste un modelo de regresión logística con términos polinómicos de grado 1, 2 y 3 a los datos.
+\item Utilizando la función {\tt contourf}, visualice el mapa de probabilidades a posteriori estimadas para la categoría 1.
+\item Calcule las tasas de error de entrenamiento y validación.
+\item Calcule las verosimilitud de los datos de entrenamiento y test para el modelo obtenido.
+\end{enumerate}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Máquina de vectores soporte}
+
+Evaluaremos a continuación las prestaciones de un clasificador basado en máquinas de vectores soporte (SVM, {\em Support Vector Machine}).
+
+Utilizaremos, para ello, una SVM con núcleos gaussianos de desviación típica 0.5.
+
+\begin{enumerate}
+\item Utilizando la función {\tt svmtrain}, entrene una SVM con los datos de entrenamiento, visualizando la frontera de decisión, tomando $C=$ 0.1.
+\item Haciendo un barrido sobre el parámetro $C$, visualice las tasas de error de entrenamiento y validación, en función de $C$, y elija un valor de acuerdo con el error de validación.
+\end{enumerate}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Evaluación final}
+
+Seleccione, de acuerdo con las tasas de error de validación, el clasificador que mejores prestaciones ha obtenido, de entre todos los analizados en las secciones anteriores, y determine su tasa de error con los datos de test.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Clasificación con datos reales}
+
+Aplicaremos en esta sección los clasificadores anteriores a una base de datos reales multidimensionales. La visualización de los datos en el espacio de entrada ya no es posible, pero podemos evaluar las prestaciones utilizando las tasas de error.
+
+Trabajaremos con el {\tt cancer\_dataset}.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Preparación de datos}
+
+Antes de entrenar el clasificador, conviene normalizarlos, para que la escala de todas las variables sea similar. 
+
+Las siguientes líneas de código realizan una transformación lineal que hace que los datos de entrenamiento tengan media nula y varianza unidad. Exactamente la misma transformación ha de aplicarse a los datos de validación y de test:
+
+{\tt mx = mean(xTrain); stdx = std(xTrain);}  \\
+{\tt xTrain = (xTrain - ones(nTrain,1)*mx)./(ones(nTrain, 1)*stdx);} \\ 
+{\tt xVal   = (xVal   - ones(nVal,1)*mx)./(ones(nVal,1)*stdx); }     \\
+{\tt xTest  = (xTest  - ones(nTest,1)*mx)./(ones(nTest,1)*stdx);}
+
+Realizaremos todo el resto de la práctica con los datos normalizados.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Clasificación con máquinas de vectores soporte}
+
+En este apartado entrenaremos una máquina de vectores soporte con núcleos gaussianos. Utilizaremos el conjunto de validación para determinar los valores de los hiperparámetros $sigma$ y $C$.
+
+
+\begin{enumerate}
+\item Entrene la SVM para diferentes valores de $\sigma$ entre -0.02 y 8 y valores de $C$ entre 0.001 y 1000. Determine las tasas de error de entrenamiento y validación en cada caso, y represente gráficamente (por ejemplo, mediante la función {\tt contourf}), dichas tasas de error.
+\item Determine los valores de anchura del núcleo, $\sigma$, y del parámetro $C$ que minimizan la tasa de error de validación.
+\item Evalúe las prestaciones del clasificador utilizando los datos de test, para los valores de los hiperparámetros seleccionados en el apartado anterior.
+\end{enumerate}
+
+
+
+
+
+\end{document}
+
+

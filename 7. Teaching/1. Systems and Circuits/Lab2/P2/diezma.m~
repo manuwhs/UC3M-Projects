@@ -1,0 +1,11 @@
+function [yo, no] = diezma(x,n, M)
+%DIEZMA Summary of this function goes here
+%   Detailed explanation goes here
+yo = []
+for k=1:Ny
+    y = [y xaux(k*3)];
+end
+ny = 1:Ny; % eje temporal para y
+
+end
+

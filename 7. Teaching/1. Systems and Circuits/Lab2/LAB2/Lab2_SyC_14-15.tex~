@@ -1,0 +1,303 @@
+\documentclass[a4paper,10pt,oneside]{article}
+\usepackage[spanish]{babel}
+\usepackage[latin1]{inputenc}
+\usepackage{color}
+\usepackage{amsmath}
+%\usepackage[dvips]{graphicx}
+\usepackage{latexsym}
+\usepackage{epsfig}
+\usepackage{pstricks}
+\usepackage{amssymb}
+\usepackage{subfigure}
+\usepackage{subfig}
+\usepackage{caption}
+\usepackage{float}
+%\usepackage{graphicx,epic, eepic}
+
+% para que las comillas simples dentro de los entornos verbatim aparezcan como tales
+\usepackage{upquote}
+
+ \renewcommand{\appendixname}{Anexo}
+
+
+
+\setlength{\voffset}{-1in} \setlength{\hoffset}{-1in}
+\setlength{\oddsidemargin}{3cm} \setlength{\topmargin}{1.25cm}
+\setlength{\headheight}{1.25cm} \setlength{\headsep}{0cm}
+\setlength{\textheight}{24.7cm} \setlength{\textwidth}{15cm}
+\setlength{\marginparsep}{2mm} \setlength{\marginparwidth}{2cm}
+\setlength{\footskip}{1cm}
+
+\setlength{\parindent}{0pt}
+
+\spanishdecimal{.}
+
+\title {Lab 2 Sistemas y Circuitos. Curso académico 2014 -- 2015}
+
+\begin{document}
+
+\begin{center}
+    {\textsc {\huge Sistemas y Circuitos}}\\
+    {\textsc {\Large Lab 2: Sistemas}}\\
+    \textsc{ {\large Curso académico 14/15}}
+    \begin{figure}[!h]
+        \includegraphics{figuras/linea}
+    \end{figure}
+\end{center}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%    					OBJECTIVES
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Objetivos de la práctica}
+
+En esta segunda sesión de laboratorio el estudiante trabajará sobre 
+\begin{itemize}
+\item Implementar sistemas en tiempo discreto como funciones Matlab,
+\item Implementar la convolución discreta como una función Matlab,
+\item Simular un escenario de eco acústico empleando sistemas lineales
+  e invariantes en el tiempo
+\item Caracterización de la linealidad e invarianza temporal de un
+  sistema desconocido.
+\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%    					REGULATION
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Reglamentaci\'on y puntuaci\'on de las sesiones de laboratorios}
+
+\begin{itemize}
+\item Los estudiantes deberán completar las actividades propuestas
+  durante la sesión de laboratorio.
+\item La evaluación de esta práctica se realizará mediante un
+  cuestionario a rellenar en Aula Global {\bf que se abrirá después de
+  que todos los grupos hayan pasado por el laboratorio.} Esta
+evaluación supondrá el 2,5\% del total de la nota de la asignatura.
+\end{itemize}
+
+
+\section{Implementación de sistemas discretos descritos mediante ecuaciones en MatLab}
+
+Como vimos en la práctica anterior, el hecho de que Matlab trabaje sobre matrices o
+vectores nos lleva a representar las secuencias en tiempo discreto de
+modo eficiente mediante dos vectores, uno de ellos almacena los
+valores distintos de cero de la secuencia (los $x[n]$) y el otro los
+instantes de tiempo para los que $x[n]$ es distinta de cero (las $n$).
+
+Los sistemas son dispositivos físicos o software que transforman una
+señal de entrada en una señal de salida. El modo en que proponemos
+simular esta situación con Matlab es mediante el empleo de
+funciones. De este modo, el sistema sería la propia función, la señal
+de entrada estaría dentro de los argumentos de entrada de al función y
+la señal de salida dentro de los argumentos de salida de la misma. Por
+ejemplo vamos a implementar el sistema descrito mediante la ecuación 
+\[
+y[n] = 0.2 x[n]^2 -0.3 x[n-1]^2 + \mbox{sen}(n) x[n] - 0.4 x[n-2] 
+\]
+
+Para ello abra con un editor de textos un fichero llamado {\tt
+  sistema.m} y guárdelo en su directorio de trabajo. El fichero deberá
+contener las siguientes líneas que implementan el sistema anterior:
+
+
+
+{\small
+\begin{verbatim}
+function [ny, y] = sistema(nx, x)
+% Implementa el sistema descrito mediante la ecuacion
+% y[n] = 0.2 x[n]^2 -0.3 x[n-1]^2 + sen(n) x[n] - 0.4 x[n-2]
+%
+% Entradas:
+% nx: rango de instantes en los que se define la sennal de entrada.
+% suponemos que x[n] es nula fuera de ese rango
+% x: valores de la sennal de entrada
+%
+% Salidas:
+% ny: rango de instantes de tiempo en los que se define la sennal
+% de salida
+% y: valores de la sennal de salida
+
+% construccion de los ejes de tiempos
+% Si la sennal x[n] esta definida entre nx(1) y nx(end), el ultimo
+% instante para el que tendremos salida no nula es nx(end)+2 por el
+% termino 0.4*x[n-2] de la ecuacion.
+% De igual modo, el primer termino que necesitamos emplear de x[n] es
+% el valor nx(1)-2, que es cero. 
+% Definimos los valores de n de interes teniendo en cuenta lo anterior 
+ 
+n_inicio = nx(1)-2; % primer instante de x[n] que debemos considerar
+n_fin = nx(end) + 2 % ultimo instante donde hay salida no nula
+
+ny = nx(1):1:n_fin; % instantes de tiempo de la salida, van desde el
+                     % primer instante no nulo de la entrada a
+
+
+% definimos el vector donde vamos a almacenar la salida
+% y lo inicializamos a 0
+y = zeros(1, length(ny)); 
+
+% la salida se forma sumando 4 componentes
+% termino x[n]^2
+% primero alargamos el vector x para que tenga la misma longitud que
+% y. Para ello incluimos de forma explicita los ceros necesarios (x[n]
+% es nula para n>nx(end)
+
+x1 = [x, zeros(1,n_fin - nx(end))]; 
+y1 = 0.2*x1.^2;
+ 
+% termino -.3x[n-1]^2
+x2 = [0 x 0]; % el primer 0 es para hacer x[n-1] para n=nx(1) -1
+y2 = -.3*x2.^2
+
+% termino sen(n) x[n]
+y3 = sen(ny).*x1;
+
+% termino - 0.4 x[n-2]
+x4 = [zeros(1, nx(1)-n_inicio), x];
+y4 = -0.4*x4;
+
+% sumamos las 4 componentes
+y = y1 + y2 + y3 + y4;
+\end{verbatim}
+}
+
+A continuación pruebe el funcionamiento de este sistema, que
+básicamente distorsiona no linealmente la señal de entrada con la
+señales de audio empleadas en la práctica 1.
+
+Apoyándose en el código anterior y en lo aprendido en la práctica 1,
+codifique una función {\tt SistemaQueAbate.m} que implemente el
+sistema descrito mediante la ecuación:
+\[
+y[n] = 0.5 x[4-n] + 0.7 x[n-5] -0.4 \cos (2\pi x[2-n])
+\]
+
+Para ello tenga en cuenta lo siguiente:
+\begin{itemize}
+\item La salida se compone sumando 3 señales intermedias
+\item Cada una de estas señales intermedias conlleva una operación
+  sobre la variable independiente. Tenga esto en cuenta a la hora de
+  determinar los instantes $n$ en los que la salida está definida.
+\end{itemize}
+
+\section{Implementación de la convolución en tiempo discreto para
+  secuencias de duración finita}
+
+Los sistemas lineales e invariantes con el tiempo quedan perfectamente
+definidos mediante la respuesta al impulso $h[n]$. Conocida $h[n]$, la
+salida para cualquier entrada puede calcularse mediante la operación
+de convolución:
+\[
+y[n] = \sum_{k=-\infty}^{\infty}x[k]h[n-k].
+\]
+Aunque Matlab incorpora una implementación de la función convolución {\tt
+  conv} que convoluciona dos vectores de valores, en este ejercicio vamos a programar una versión que sea
+capaz de trabajar con secuencias definidas mediante dos vectores, uno
+que almacene los instantes de tiempo y otro que almacene los valores
+de la secuencia. Para ello codifique un fichero llamado {\tt
+  ConvolucionDiscreta.m} que implemente la función de cabecera
+
+{\small
+\begin{verbatim}
+function [ny, y] = ConvolucionDiscreta(nx, x, nh, h)
+% Entradas
+%
+% nx: instantes de tiempo en los que esta definida la entrada
+% x: valore de la entrada
+% nh: instantes de tiempo en los que esta definida la respuesta al
+% impulso
+% h: valores de la respuesta al impulso
+%
+% Salidas
+%
+% ny: instantes de tiempo en que esta definida la salida
+% y: valores de la salida
+\end{verbatim}
+}
+
+La función {\tt conv} de Matlab convoluciona los elementos de dos
+vectores. De acuerdo con la representación adoptada en el laboratorio,
+un vector Matlab de longitud $N$ equivale implícitamente a una
+secuencia cuyo rango de valores va desde $n=1$ a $n=N$. Sabemos por
+las propiedades de los sistemas LIT que toda secuencia de duración $N$
+puede expresarse como el resultado de desplazar una secuencia que vaya
+desde $n=1$ hasta $n=N$. Por ejemplo, la señal
+\[
+x[n] = \left \{ \begin{array}{ll} 1 & , 5 \le n \le 12 \\ 0 & \mbox{, resto} \end{array}\right.
+\]puede escribirse como 
+\[
+x[n] = x1[n] \ast \delta[n-4]
+\]con
+\[
+x1[n] = \left \{ \begin{array}{ll} 1 & ,1 \le n \le 8 \\ 0 & \mbox{, resto} \end{array}\right.
+\]
+
+Si tenemos que en general la entrada $x[n]$ comienza a ser distinta de
+cero en $n=n_x$ y la respuesta al impulso $h[n]$ lo hace a partir de
+$n=n_h$, la salida puede calcularse como
+
+\[
+y[n] = x[n]\ast h[n] =  \left ( x1[n]\ast \delta[n+1-n_x]\right ) \ast
+\left ( h1[n]\ast \delta[n+1-n_h]\right ) =
+\]
+\[
+= \left ( x1[n]\ast h1[n]
+\right ) \ast \left ( \delta[n+1-n_x] \ast \delta[n+1-n_h]\right )
+\]
+\[
+y1[n] \ast \delta[n + 2 - (n_x+n_h)]
+\]
+
+Entonces la estructura de la función {\tt
+  ConvolucionDiscreta.m} podría consistir en
+
+\begin{enumerate}
+\item una parte que
+transformase las dos secuencias a convolucionar en sus equivalentes
+comenzando en $n=1$
+\item realizar la convolución de las secuencias que comienzan en 1
+\item calcular el desplazamiento que hay que aplicar a la salida antes
+  de devolverla. 
+\end{enumerate}
+
+
+Alternativamente se propone a los alumnos que realicen su propia
+implementación de la función {\tt conv}, y que la comparen con la
+implementación de Matlab para asegurarse de que es correcta.
+
+
+\section{Miniproyecto: Simulación de eco acústico}
+
+Con lo aprendido en esta sesión podemos simular un escenario de eco
+acústico. El eco puede verse como una interconexión de sistemas en
+paralelo. Una de las ramas consiste en la señal de voz del
+locutor, mientras que la otra se encarga de generar la señal de eco.  La rama del locutor es básicamente un sistema identidad, asumimos que
+la voz viaja desde la boca al oído del locutor sin alterar. 
+
+La rama que genera el eco puede modelarse como la concatenación de
+tres sistemas LIT en serie:
+\begin{itemize}
+\item El primer sistema modela el retardo que se
+produce desde que la voz sale de la boca del locutor hasta que llega a
+la montaña. En tiempo discreto este retardo debe contarse en número de
+muestras. Si los audios de que disponemos para realizar la práctica han
+sido obtenidos a una tasa de $f_s$ muestras por segundo y la
+velocidad del sonido puede considerarse 340 $m/s$, cada metro
+recorrido por la voz equivale a un retardo de $f_s/340$ muestras.
+\item El segundo sistema modela la ``cara'' de la montaña. Este
+  sistema se encargaría de capturar la suma de las reflexiones de la
+  voz en la superficie de la montaña. En esta práctica usaremos la
+  respuesta al impulso almacenada en el fichero {\tt mountain.mat}.
+\item Finalmente podemos modelar la atenuación que sufre la voz en su
+  camino de vuelta. Esta tercera respuesta al impulso la podemos
+  modelar como $A\delta[n]$, donde $A<1$ es el coeficiente que acumula
+  todas las atenuaciones que sufriría la señal de eco.
+\end{itemize}
+
+El miniproyecto consiste en simular la interconexión de los sistemas
+descritos anteriormente para recrear una situación de eco acústico con
+alguna de las grabaciones de voz suministradas en la práctica
+anterior. Escuche los efectos del eco para comprobar cualitativamente
+el impacto de variar la atenuación y sobre todo el retardo, que es la
+parte más molesta, especialmente en aplicaciones de comunicaciones,
+
+\end{document}

@@ -1,0 +1,140 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage{epsfig}
+\usepackage[OT1]{fontenc}
+\usepackage[latin1]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage{amsmath,amssymb}
+\usepackage{float}
+
+\oddsidemargin  -0.31in
+\evensidemargin -0.31in
+
+\topmargin 50truept
+\headheight 0truept
+\headsep 0truept
+\voffset -20truemm
+%\footheight 0truept
+\footskip 10truemm
+\textheight 250truemm
+\textwidth 175truemm
+
+%\twocolumn
+%\columnsep 8truemm
+\pagestyle{empty}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{10pt}
+
+
+\def\bfmath#1{\mbox{\boldmath$#1$}} 
+\begin{document}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\title{Práctica 1: Classification}
+
+%%% IEEE
+\author{Data Processing \\ Academic year 2013--2014 }
+\maketitle
+
+\section*{Introduction}
+\label{sec-intro}
+
+In this lab session we will study logistic regression and support vector machines using artificially generated data. After that, we will analyze the behavior of these classifiers using a real dataset.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Analysis of a bidimensional synthetic problem}
+
+Load the data contained in file {\tt 'datosP1.mat'}. This file contains two variables, {\tt x} and {\tt y}. The first one is an observation  matrix. The second one contains the class label (0 or 1) corresponding to each observation.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Logistic regression. Linear classifier}
+
+First, we will analyze the behavior of a logistic regression model.
+
+\begin{enumerate}
+\item Visualize the observations on the plane, using a different marker for the data from each class.
+\item Using function {\tt glmfit}, fit a logistic regression model to the data.
+\item Using function {\tt contourf}, visualize the posterior probability map for class 1.
+\item Determine the training and validation error rates.
+\item Determine the training and validation data likelihoods for the estimated model.
+\end{enumerate}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Logistic regression. Nonlinear classifier}
+
+In the following, we will analyze the behavior of a non-lineal classifier based in a polynomial logistic regression model.
+
+\begin{enumerate}
+\item Using function {\tt glmfit}, fit a logistic regression model with polynomial terms up to degrees 1, 2 and 3.
+\item Using {\tt contourf}, visualize the estimated posterior probability map for class 1.
+\item Compute the training and validation error rates.
+\item Determine the training and validation data likelihoods for the estimated model.
+\end{enumerate}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Máquina de vectores soporte}
+
+We will evaluate the performance of a classifier based on Support Vector Machines (SVM).
+
+We will use an SVM with Gaussian kernels, taking kernel width $\sigma=0.5$.
+
+\begin{enumerate}
+\item Using function {\tt svmtrain}, train an SVM with the training data, visualizing the decision boundary and taking $C=$ 0.1.
+\item Exploring different values of parameter $C$, visualize the training and validation error rates, as a function of $C$, and choose a specific value according to the validation error.
+\end{enumerate}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Final evaluation}
+
+Choose, according to the validation error, the classifier providing the best performance, among all those analyzed in the sections above, and compute the test error rate.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Classification with real data}
+
+We will apply logistic regression an SVM to a real multidimensional dataset. The data visualization in the input space is no longer possible, but performance evaluation can be carried out using the error rates in any case.
+
+We will work with the {\tt cancer\_dataset}.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Data preparation}
+
+
+In order to ensure that all variables have a similar scale, data normalization is generally advised.
+
+The following code fragments carries a linear transformation making the observations in the training set have zero mean and unit sample variance. The same transformation must be applied to validation and test data:
+
+{\tt mx = mean(xTrain); stdx = std(xTrain);}  \\
+{\tt xTrain = (xTrain - ones(nTrain,1)*mx)./(ones(nTrain, 1)*stdx);} \\ 
+{\tt xVal   = (xVal   - ones(nVal,1)*mx)./(ones(nVal,1)*stdx); }     \\
+{\tt xTest  = (xTest  - ones(nTest,1)*mx)./(ones(nTest,1)*stdx);}
+
+We will use the normalized data all along the rest of the lab exercise.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Classification with Support Vector Machines}
+
+In this section we will train a SVM with Gaussian kernels. We will use a validation dataset to determine the values of the hyperparameters $\sigma$ and $C$.
+
+\begin{enumerate}
+\item Train the SVM for different values of $\sigma$ ranging from -0.02 to 8 and values of $C$ between 0.001 and 1000. Compute the training and validation eror rates in each case, and represent graphically (e.g., by means of function {\tt contourf}) such error rates.
+\item Compute the values of the kernel width, $\sigma$, and parameter $C$ minimizing the validation error rate.
+\item Evaluate the classifier performance using the test data, for the selected hyperparameter values.
+\end{enumerate}
+
+
+
+
+
+\end{document}
+
+
