@@ -1,0 +1,34 @@
+Abstract
+Introduction
+Image Preprocessing
+
+The dataset is composed of XXX images of different size, ilumination... 
+The first step is to preprocess them in order to make them of same size...
+Ideally, subjects detection should be independent to rotation, scaling and luminosity.
+In this paper, the algorithm proposed first detects de eyes in order make it rotation and
+scale invariant. All faces are looking straigh so there is no need for multimodal detection.
+
+Feature Extraction
+
+PCA
+LDA
+ICA
+
+Classification
+
+LR, LDA, KNN, SVM...
+
+Results
+
+Colclusion final results.
+
+
+
+PCA .
+
+Obtain projection into hyperplanes that maximize the variance of the projected data. 
+Every vector obtained is a hyperplane of the input space. 
+If you multiply an image by this hyperplane you obtain the feature (projection)
+The hyperplanes are the eigenfaces and they tell you the contribution of every pixel for that feature.
+
+
